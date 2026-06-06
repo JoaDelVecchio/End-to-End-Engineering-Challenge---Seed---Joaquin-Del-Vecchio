@@ -11,3 +11,4 @@ backend/data/store.json
 playwright-report/
 test-results/
 *.log
+.vercel
