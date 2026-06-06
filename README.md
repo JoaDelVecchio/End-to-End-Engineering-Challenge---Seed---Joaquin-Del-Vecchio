@@ -313,3 +313,5 @@ npm test             # tests backend + frontend
 npm run test:e2e     # tests de navegador
 npm run build        # build completa
 ```
+
+Si el IDE de HackerRank ejecuta `npm start` parado dentro de `frontend/`, ese script también levanta backend + frontend delegando al proyecto raíz.
