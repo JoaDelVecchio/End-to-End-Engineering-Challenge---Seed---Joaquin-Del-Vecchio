@@ -173,6 +173,16 @@ low      < 25
 
 La API devuelve `priority.score` y `priority.reasons` para que la decisión sea explicable.
 
+## Decisiones de UX y seguridad
+
+- Los filtros se aplican en memoria porque el dataset es chico y ya está cargado en el frontend.
+- No se agregó debounce en filtros porque no disparan requests por tecla. Si la búsqueda pasara al backend, agregaría debounce y cancelación de requests para evitar tráfico innecesario y race conditions.
+- Las cargas iniciales se hacen en paralelo y las respuestas viejas se ignoran para no pisar datos más nuevos.
+- Las acciones del vendedor muestran estado pendiente para evitar dobles envíos.
+- Los errores no borran el dashboard ya cargado; se muestran como feedback sin romper el contexto.
+- Resolver preguntas y cambiar estados pide confirmación inline porque son acciones que alteran la cola o el estado logístico.
+- El backend valida payloads con Zod y devuelve errores JSON consistentes. La UI ayuda, pero la regla final queda en la API.
+
 ## Estructura
 
 ```text
