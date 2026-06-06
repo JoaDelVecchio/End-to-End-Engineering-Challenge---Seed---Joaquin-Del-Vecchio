@@ -72,6 +72,19 @@ export function createApp({
   );
   app.use(express.json());
 
+  app.get("/", (_request, response) => {
+    response.json({
+      name: "Seller Dashboard API",
+      frontend: "http://localhost:3000",
+      endpoints: {
+        health: "/api/health",
+        seller: "/api/sellers/seller-1",
+        orders: "/api/sellers/seller-1/orders",
+        unresolvedQuestions: "/api/sellers/seller-1/questions/unresolved"
+      }
+    });
+  });
+
   app.get("/api/health", (_request, response) => {
     response.json({ ok: true });
   });
