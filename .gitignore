@@ -1,14 +1,35 @@
+# Dependencies
 node_modules/
-.claude/
+**/node_modules/
+
+# Build output
 dist/
+**/dist/
+.vite/
+**/.vite/
+.vercel/
+
+# Test and coverage output
 coverage/
-backend/data/store.json
+**/coverage/
+playwright-report/
+test-results/
+.nyc_output/
+
+# Runtime/demo data
+backend/data/
+.dev-server.pid
+*.tsbuildinfo
+
+# Local env and logs
 .env
 .env.local
 .env.*.local
-.dev-server.pid
-*.tsbuildinfo
-playwright-report/
-test-results/
 *.log
-.vercel
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local tooling
+.DS_Store
+.claude/
