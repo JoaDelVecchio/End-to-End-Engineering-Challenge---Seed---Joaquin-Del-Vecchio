@@ -1,0 +1,13 @@
+node_modules/
+.claude/
+dist/
+coverage/
+backend/data/store.json
+.env
+.env.local
+.env.*.local
+.dev-server.pid
+*.tsbuildinfo
+playwright-report/
+test-results/
+*.log
