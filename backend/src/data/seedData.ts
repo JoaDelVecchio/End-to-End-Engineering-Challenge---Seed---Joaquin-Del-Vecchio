@@ -16,48 +16,6 @@ export function createSeedData(): StoreData {
         reputation: "MercadoLíder"
       }
     ],
-    products: [
-      {
-        id: "prod-1",
-        sellerId: "seller-1",
-        title: "Laptop Ultra 14",
-        category: "electronics",
-        price: 1200,
-        stock: 8
-      },
-      {
-        id: "prod-2",
-        sellerId: "seller-1",
-        title: "Impresora térmica de etiquetas",
-        category: "office",
-        price: 180,
-        stock: 14
-      },
-      {
-        id: "prod-3",
-        sellerId: "seller-1",
-        title: "Mouse inalámbrico",
-        category: "electronics",
-        price: 45,
-        stock: 40
-      },
-      {
-        id: "prod-4",
-        sellerId: "seller-1",
-        title: "Set de cintas de embalaje",
-        category: "supplies",
-        price: 12,
-        stock: 120
-      },
-      {
-        id: "prod-5",
-        sellerId: "seller-2",
-        title: "Juego de vajilla de cerámica",
-        category: "home",
-        price: 90,
-        stock: 20
-      }
-    ],
     orders: [
       {
         id: "ord-1001",
@@ -75,14 +33,14 @@ export function createSeedData(): StoreData {
             title: "Impresora térmica de etiquetas",
             category: "office",
             quantity: 1,
-            unitPrice: 180
+            unitPrice: 180000
           },
           {
             productId: "prod-4",
             title: "Set de cintas de embalaje",
             category: "supplies",
             quantity: 3,
-            unitPrice: 12
+            unitPrice: 12000
           }
         ],
         questions: [
@@ -113,14 +71,14 @@ export function createSeedData(): StoreData {
             title: "Laptop Ultra 14",
             category: "electronics",
             quantity: 1,
-            unitPrice: 1200
+            unitPrice: 1200000
           },
           {
             productId: "prod-3",
             title: "Mouse inalámbrico",
             category: "electronics",
             quantity: 2,
-            unitPrice: 39
+            unitPrice: 39000
           }
         ],
         questions: [
@@ -152,7 +110,7 @@ export function createSeedData(): StoreData {
             title: "Mouse inalámbrico",
             category: "electronics",
             quantity: 1,
-            unitPrice: 45
+            unitPrice: 45000
           }
         ],
         questions: [
@@ -191,7 +149,7 @@ export function createSeedData(): StoreData {
             title: "Impresora térmica de etiquetas",
             category: "office",
             quantity: 2,
-            unitPrice: 175
+            unitPrice: 175000
           }
         ],
         questions: []
@@ -212,7 +170,7 @@ export function createSeedData(): StoreData {
             title: "Juego de vajilla de cerámica",
             category: "home",
             quantity: 1,
-            unitPrice: 90
+            unitPrice: 90000
           }
         ],
         questions: []

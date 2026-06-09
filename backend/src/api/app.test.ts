@@ -41,6 +41,30 @@ describe("seller dashboard API", () => {
     });
   });
 
+  it("returns not found for unknown seller operational routes", async () => {
+    const { app } = setup();
+
+    await request(app)
+      .get("/api/sellers/missing-seller/orders")
+      .expect(404)
+      .expect(({ body }) => {
+        expect(body.error).toMatchObject({
+          code: "SELLER_NOT_FOUND",
+          message: "Seller missing-seller not found"
+        });
+      });
+
+    await request(app)
+      .get("/api/sellers/missing-seller/questions/unresolved")
+      .expect(404)
+      .expect(({ body }) => {
+        expect(body.error).toMatchObject({
+          code: "SELLER_NOT_FOUND",
+          message: "Seller missing-seller not found"
+        });
+      });
+  });
+
   it("filters seller orders by status and buyer search", async () => {
     const { app } = setup();
 
@@ -215,7 +239,10 @@ describe("seller dashboard API", () => {
       .expect(409);
 
     expect(response.body).toEqual({
-      error: "Only resolved questions can be reopened"
+      error: {
+        code: "QUESTION_NOT_RESOLVED",
+        message: "Only resolved questions can be reopened"
+      }
     });
   });
 
@@ -228,8 +255,53 @@ describe("seller dashboard API", () => {
       .expect(409);
 
     expect(response.body).toEqual({
-      error: "Invalid order status transition from delivered to paid"
+      error: {
+        code: "INVALID_ORDER_TRANSITION",
+        message: "Invalid order status transition from delivered to paid"
+      }
     });
+  });
+
+  it("reconciles stale serverless state when the client sends the previous visible status", async () => {
+    const { app } = setup();
+
+    const response = await request(app)
+      .patch("/api/orders/ord-1001/status")
+      .send({ previousStatus: "packing", status: "shipped" })
+      .expect(200);
+
+    expect(response.body.order.status).toBe("shipped");
+  });
+
+  it("keeps skipped order transitions invalid without client state reconciliation", async () => {
+    const { app } = setup();
+
+    const response = await request(app)
+      .patch("/api/orders/ord-1001/status")
+      .send({ status: "shipped" })
+      .expect(409);
+
+    expect(response.body).toEqual({
+      error: {
+        code: "INVALID_ORDER_TRANSITION",
+        message: "Invalid order status transition from paid to shipped"
+      }
+    });
+  });
+
+  it("returns structured validation errors", async () => {
+    const { app } = setup();
+
+    const response = await request(app)
+      .post("/api/questions/q-9001/replies")
+      .send({ body: "" })
+      .expect(400);
+
+    expect(response.body.error).toMatchObject({
+      code: "VALIDATION_ERROR",
+      message: "Validation error"
+    });
+    expect(response.body.error.details).toBeDefined();
   });
 
   it("returns a JSON 404 for unknown routes", async () => {
@@ -239,7 +311,12 @@ describe("seller dashboard API", () => {
       .get("/api/does-not-exist")
       .expect(404);
 
-    expect(response.body).toEqual({ error: "Route not found" });
+    expect(response.body).toEqual({
+      error: {
+        code: "ROUTE_NOT_FOUND",
+        message: "Route not found"
+      }
+    });
   });
 
   it("allows configured frontend origins through CORS", async () => {

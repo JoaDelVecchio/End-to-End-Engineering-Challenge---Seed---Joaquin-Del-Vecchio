@@ -11,8 +11,8 @@ const orders: Order[] = [
     status: "paid",
     date: "2026-06-06T09:30:00.000Z",
     items: [
-      { productId: "prod-1", title: "Laptop", category: "electronics", quantity: 1, unitPrice: 1200 },
-      { productId: "prod-2", title: "Mouse", category: "electronics", quantity: 2, unitPrice: 40 }
+      { productId: "prod-1", title: "Laptop", category: "electronics", quantity: 1, unitPrice: 1200000 },
+      { productId: "prod-2", title: "Mouse", category: "electronics", quantity: 2, unitPrice: 40000 }
     ],
     questions: [
       {
@@ -32,7 +32,7 @@ const orders: Order[] = [
     buyer: { id: "buyer-2", name: "Lucas Gomez", email: "lucas@example.com" },
     status: "delivered",
     date: "2026-06-05T09:30:00.000Z",
-    items: [{ productId: "prod-3", title: "Tape", category: "supplies", quantity: 3, unitPrice: 10 }],
+    items: [{ productId: "prod-3", title: "Tape", category: "supplies", quantity: 3, unitPrice: 10000 }],
     questions: [
       {
         id: "q-2",
@@ -56,7 +56,11 @@ const priorityQuestions = [
 
 describe("order dashboard helpers", () => {
   it("calculates order totals from purchase-time unit prices", () => {
-    expect(orderTotal(orders[0])).toBe(1280);
+    expect(orderTotal(orders[0])).toBe(1280000);
+  });
+
+  it("prefers the API total when it is present", () => {
+    expect(orderTotal({ ...orders[0], total: 999999 })).toBe(999999);
   });
 
   it("summarizes active orders, unresolved questions, critical questions, and GMV", () => {
@@ -64,7 +68,7 @@ describe("order dashboard helpers", () => {
       activeOrders: 1,
       criticalQuestions: 1,
       openQuestions: 1,
-      totalValue: 1310
+      totalValue: 1310000
     });
   });
 });

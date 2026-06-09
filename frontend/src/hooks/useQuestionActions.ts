@@ -3,33 +3,39 @@ import { reopenQuestion, replyToQuestion, resolveQuestion, transitionOrder } fro
 import type { FormEvent } from "react";
 import type { Order, OrderStatus, Question } from "../domain/types";
 
-export function useQuestionActions(refreshDashboard: () => Promise<void>) {
+export function useQuestionActions({
+  applyUpdatedOrder,
+  refreshDashboard
+}: {
+  applyUpdatedOrder: (order: Order) => void;
+  refreshDashboard: () => Promise<void>;
+}) {
   const [actionError, setActionError] = useState<string | null>(null);
-  const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [pendingActions, setPendingActions] = useState<string[]>([]);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
-  const isActionRunningRef = useRef(false);
+  const runningLocksRef = useRef(new Set<string>());
 
   const updateReplyDraft = useCallback((questionId: string, value: string) => {
     setActionError(null);
     setReplyDrafts((current) => ({ ...current, [questionId]: value }));
   }, []);
 
-  const runAction = useCallback(async (actionKey: string, action: () => Promise<void>) => {
-    if (isActionRunningRef.current) {
+  const runAction = useCallback(async (actionKey: string, lockKey: string, action: () => Promise<void>) => {
+    if (runningLocksRef.current.has(lockKey)) {
       return;
     }
 
-    isActionRunningRef.current = true;
+    runningLocksRef.current.add(lockKey);
     setActionError(null);
-    setPendingAction(actionKey);
+    setPendingActions((current) => [...current, actionKey]);
 
     try {
       await action();
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "No pudimos completar la acción.");
     } finally {
-      isActionRunningRef.current = false;
-      setPendingAction(null);
+      runningLocksRef.current.delete(lockKey);
+      setPendingActions((current) => current.filter((key) => key !== actionKey));
     }
   }, []);
 
@@ -42,7 +48,7 @@ export function useQuestionActions(refreshDashboard: () => Promise<void>) {
         return;
       }
 
-      await runAction(`reply:${question.id}`, async () => {
+      await runAction(`reply:${question.id}`, `question:${question.id}`, async () => {
         await replyToQuestion(question.id, body);
         setReplyDrafts((current) => ({ ...current, [question.id]: "" }));
         await refreshDashboard();
@@ -53,7 +59,7 @@ export function useQuestionActions(refreshDashboard: () => Promise<void>) {
 
   const handleResolve = useCallback(
     async (questionId: string) => {
-      await runAction(`resolve:${questionId}`, async () => {
+      await runAction(`resolve:${questionId}`, `question:${questionId}`, async () => {
         await resolveQuestion(questionId);
         await refreshDashboard();
       });
@@ -63,7 +69,7 @@ export function useQuestionActions(refreshDashboard: () => Promise<void>) {
 
   const handleReopen = useCallback(
     async (questionId: string) => {
-      await runAction(`reopen:${questionId}`, async () => {
+      await runAction(`reopen:${questionId}`, `question:${questionId}`, async () => {
         await reopenQuestion(questionId);
         await refreshDashboard();
       });
@@ -73,12 +79,12 @@ export function useQuestionActions(refreshDashboard: () => Promise<void>) {
 
   const handleTransition = useCallback(
     async (order: Order, status: OrderStatus) => {
-      await runAction(`transition:${order.id}:${status}`, async () => {
-        await transitionOrder(order.id, status);
-        await refreshDashboard();
+      await runAction(`transition:${order.id}:${status}`, `order:${order.id}`, async () => {
+        const updatedOrder = await transitionOrder(order.id, status, order.status);
+        applyUpdatedOrder(updatedOrder);
       });
     },
-    [refreshDashboard, runAction]
+    [applyUpdatedOrder, runAction]
   );
 
   return {
@@ -87,7 +93,7 @@ export function useQuestionActions(refreshDashboard: () => Promise<void>) {
     handleReply,
     handleResolve,
     handleTransition,
-    pendingAction,
+    pendingActions,
     replyDrafts,
     updateReplyDraft
   };

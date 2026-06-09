@@ -9,7 +9,7 @@ import { ConfirmableAction } from "../ConfirmableAction";
 
 export function QuestionThread({
   order,
-  pendingAction,
+  pendingActions,
   replyDrafts,
   onReplyDraftChange,
   onReopen,
@@ -17,7 +17,7 @@ export function QuestionThread({
   onResolve
 }: {
   order: Order;
-  pendingAction?: string | null;
+  pendingActions: string[];
   replyDrafts: Record<string, string>;
   onReplyDraftChange: (questionId: string, value: string) => void;
   onReopen: (questionId: string) => Promise<void>;
@@ -32,14 +32,13 @@ export function QuestionThread({
       </div>
       <div className="thread-list">
         {order.questions.map((question) => {
-          const isAnyActionPending = Boolean(pendingAction);
           const replyDraft = replyDrafts[question.id] ?? "";
           const replyActionKey = `reply:${question.id}`;
           const resolveActionKey = `resolve:${question.id}`;
           const reopenActionKey = `reopen:${question.id}`;
-          const isReplyPending = pendingAction === replyActionKey;
-          const isResolvePending = pendingAction === resolveActionKey;
-          const isReopenPending = pendingAction === reopenActionKey;
+          const isReplyPending = pendingActions.includes(replyActionKey);
+          const isResolvePending = pendingActions.includes(resolveActionKey);
+          const isReopenPending = pendingActions.includes(reopenActionKey);
           const isQuestionPending = isReplyPending || isResolvePending || isReopenPending;
           const canReply = replyDraft.trim().length > 0;
 
@@ -64,7 +63,7 @@ export function QuestionThread({
                 <form className="reply-form" onSubmit={(event) => onReply(question, event)}>
                   <textarea
                     value={replyDraft}
-                    disabled={isAnyActionPending}
+                    disabled={isQuestionPending}
                     onChange={(event) => onReplyDraftChange(question.id, event.target.value)}
                     placeholder="Escribe una respuesta al comprador"
                     aria-label={`Responder pregunta ${question.id}`}
@@ -73,7 +72,7 @@ export function QuestionThread({
                     <ConfirmableAction
                       key={`${question.id}:${question.status}`}
                       variant="secondary"
-                      disabled={isAnyActionPending}
+                      disabled={isQuestionPending}
                       isPending={isResolvePending}
                       triggerLabel="Resolver"
                       pendingLabel="Resolviendo"
@@ -83,7 +82,7 @@ export function QuestionThread({
                     />
                     <button
                       className="primary-button"
-                      disabled={isAnyActionPending || !canReply}
+                      disabled={isQuestionPending || !canReply}
                       type="submit"
                       aria-busy={isReplyPending}
                     >
@@ -96,7 +95,7 @@ export function QuestionThread({
                 <div className="reply-actions">
                   <button
                     className="secondary-button"
-                    disabled={isAnyActionPending}
+                    disabled={isQuestionPending}
                     type="button"
                     onClick={() => onReopen(question.id)}
                     aria-busy={isReopenPending}

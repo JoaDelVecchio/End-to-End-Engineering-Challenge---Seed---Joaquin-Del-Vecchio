@@ -1,3 +1,5 @@
+import type { CategoryId } from "../constants/categories";
+
 export type OrderStatus = "new" | "paid" | "packing" | "shipped" | "delivered" | "cancelled";
 
 export type QuestionStatus = "open" | "answered" | "resolved";
@@ -20,7 +22,7 @@ export interface Seller {
 export interface OrderItem {
   productId: string;
   title: string;
-  category: string;
+  category: CategoryId;
   quantity: number;
   unitPrice: number;
 }

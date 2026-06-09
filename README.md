@@ -3,7 +3,6 @@
 Dashboard full-stack para vendedores de MELI. Permite revisar órdenes recientes, ver productos comprados, responder preguntas de compradores y priorizar casos importantes.
 
 - Demo online: [https://meli-seller-dashboard-push.vercel.app](https://meli-seller-dashboard-push.vercel.app)
-- Video demo: [Google Drive](https://drive.google.com/file/d/1TOPdWQH04NAgXlwHu7EjeQRrZesIhCZo/view?usp=sharing)
 
 ## Qué incluye
 
@@ -11,9 +10,10 @@ Dashboard full-stack para vendedores de MELI. Permite revisar órdenes recientes
 - Órdenes con comprador, estado, fecha, total y múltiples productos.
 - Filtros por texto, estado y rango de fechas.
 - Detalle de orden con productos, preguntas, respuestas y resolución.
-- Cola de prioridad para preguntas sin resolver.
+- Cola de prioridad para preguntas pendientes de resolución.
 - Clasificación de prioridad: `low`, `medium`, `high`, `critical`.
 - Notificación simulada por consola para preguntas `high` o `critical`.
+- Cancelación de órdenes pagadas o en preparación.
 - Seed local con datos de demo, sin depender de servicios externos.
 
 ## Stack
@@ -24,7 +24,7 @@ Dashboard full-stack para vendedores de MELI. Permite revisar órdenes recientes
 | Backend | Node.js, Express, TypeScript |
 | API | Zod, JSON responses |
 | Tests | Jest, Supertest, Playwright |
-| UI | CSS responsive, lucide-react |
+| UI | SCSS responsive, lucide-react |
 
 ## Correr local
 
@@ -42,22 +42,14 @@ URLs locales:
 - Backend API: `http://localhost:8080/api`
 - Health check: `http://localhost:8080/api/health`
 
+En desarrollo, el frontend consume `/api` y Vite lo proxya al backend local.
+
 También se pueden levantar por separado:
 
 ```bash
 npm run dev:api
 npm run dev:web
 ```
-
-## Local y HackerRank
-
-- El frontend usa `/api` por default.
-- Vite proxya `/api` a `http://127.0.0.1:8080`.
-- Vite escucha en `0.0.0.0:3000`.
-- `server.allowedHosts` y `preview.allowedHosts` están habilitados para correr en hosts dinámicos como HackerRank.
-- Si HackerRank abre el puerto `8080`, eso muestra solo la API. La UI corre en el puerto `3000`.
-
-El comando `npm start` desde `frontend/` delega al `npm run dev` de la raíz, por eso levanta backend y frontend juntos.
 
 ## Variables de entorno
 
@@ -81,8 +73,10 @@ Si se separan frontend y backend en dominios distintos, configurar `VITE_API_URL
 ## Tests y build
 
 ```bash
+npm run lint
 npm test
 npm run build
+npm run check
 ```
 
 Tests end-to-end:
@@ -154,6 +148,17 @@ open | answered -> resolved
 resolved -> open
 ```
 
+Responder una pregunta no la saca de la cola. Una pregunta `answered` sigue pendiente de resolución hasta que el vendedor la marca como `resolved`.
+
+Categorías internas:
+
+```text
+electronics
+office
+supplies
+home
+```
+
 La prioridad de preguntas combina:
 
 - Valor de la orden.
@@ -161,6 +166,8 @@ La prioridad de preguntas combina:
 - Estado de la orden.
 - Palabras de riesgo, como devolución, reembolso, urgente, roto, dañado o no llegó.
 - Categoría y valor del producto referenciado.
+
+En el seed actual, `electronics` es la única categoría con boost de riesgo.
 
 Niveles:
 
@@ -178,35 +185,53 @@ La API devuelve `priority.score` y `priority.reasons` para que la decisión sea 
 - Los filtros se aplican en memoria porque el dataset es chico y ya está cargado en el frontend.
 - No se agregó debounce en filtros porque no disparan requests por tecla. Si la búsqueda pasara al backend, agregaría debounce y cancelación de requests para evitar tráfico innecesario y race conditions.
 - Las cargas iniciales se hacen en paralelo y las respuestas viejas se ignoran para no pisar datos más nuevos.
-- Las acciones del vendedor muestran estado pendiente para evitar dobles envíos.
+- Las acciones del vendedor muestran estado pendiente por entidad para evitar dobles envíos sin bloquear todo el panel.
+- Después de responder, resolver, reabrir o cambiar estado se recargan órdenes y preguntas; no se recarga la identidad del seller.
 - Los errores no borran el dashboard ya cargado; se muestran como feedback sin romper el contexto.
 - Resolver preguntas y cambiar estados pide confirmación inline porque son acciones que alteran la cola o el estado logístico.
-- El backend valida payloads con Zod y devuelve errores JSON consistentes. La UI ayuda, pero la regla final queda en la API.
+- Cancelar una orden está disponible para `paid` y `packing`, que son las transiciones válidas del dominio.
+- El backend valida payloads con Zod y devuelve errores JSON consistentes con `code` y `message`. La UI ayuda, pero la regla final queda en la API.
+
+## Simular una pregunta crítica
+
+Con el backend corriendo:
+
+```bash
+npm --prefix backend run simulate:critical
+```
+
+El script crea una pregunta crítica en `ord-1002`. La notificación simulada aparece en la consola donde corre el backend.
 
 ## Estructura
 
 ```text
-api/                     # Serverless API routes
-backend/src/api/          # Express app y endpoints
+api/index.ts              # Adapter serverless para Vercel; delega en la API Express
+backend/src/api/          # Express app, routes, controllers, schemas y middleware
 backend/src/config/       # Configuración por entorno
 backend/src/data/         # Seed y store local
-backend/src/domain/       # Reglas de negocio
-backend/src/services/     # Notificaciones
+backend/src/domain/       # Reglas puras de negocio, categorías y prioridad
+backend/src/errors/       # Errores controlados
+backend/src/services/     # Casos de aplicación y notificaciones
+backend/src/scripts/      # Seed y scripts operativos
 frontend/src/api/         # Cliente HTTP
 frontend/src/components/  # UI
 frontend/src/hooks/       # Estado y orquestación
 frontend/src/utils/       # Helpers y tests
-tests/e2e/                # Playwright
+e2e/                      # Playwright
 ```
 
 ## Comandos útiles
 
 ```bash
 npm run dev          # backend + frontend
+npm start            # alias de npm run dev
 npm run dev:api      # solo backend
 npm run dev:web      # solo frontend
 npm run seed         # regenerar datos demo
+npm --prefix backend run simulate:critical
+npm run lint         # análisis estático
 npm test             # tests backend + frontend
 npm run test:e2e     # tests de navegador
 npm run build        # build completa
+npm run check        # lint + tests + build
 ```

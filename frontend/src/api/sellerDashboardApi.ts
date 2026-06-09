@@ -40,10 +40,14 @@ export async function reopenQuestion(questionId: string): Promise<Question> {
   return data.question;
 }
 
-export async function transitionOrder(orderId: string, status: OrderStatus): Promise<Order> {
+export async function transitionOrder(
+  orderId: string,
+  status: OrderStatus,
+  previousStatus?: OrderStatus
+): Promise<Order> {
   const data = await request<{ order: Order }>(`/orders/${orderId}/status`, {
     method: "PATCH",
-    body: JSON.stringify({ status })
+    body: JSON.stringify({ previousStatus, status })
   });
   return data.order;
 }

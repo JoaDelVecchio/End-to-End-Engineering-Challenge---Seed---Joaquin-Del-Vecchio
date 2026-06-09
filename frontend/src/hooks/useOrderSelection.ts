@@ -1,22 +1,30 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { Order } from "../domain/types";
-import { selectPreferredOrder, selectVisibleOrderId } from "../utils/selection";
+import { selectPreferredOrder } from "../utils/selection";
+
+interface SelectedOrderState {
+  includeHiddenSelected: boolean;
+  orderId?: string;
+}
 
 export function useOrderSelection(allOrders: Order[], visibleOrders: Order[]) {
-  const [selectedOrderId, setSelectedOrderId] = useState<string | undefined>();
+  const [selection, setSelection] = useState<SelectedOrderState>({ includeHiddenSelected: false });
 
   const selectedOrder = useMemo(
-    () => selectPreferredOrder(allOrders, visibleOrders, selectedOrderId),
-    [allOrders, selectedOrderId, visibleOrders]
+    () => selectPreferredOrder(allOrders, visibleOrders, selection.orderId, selection),
+    [allOrders, selection, visibleOrders]
   );
-
-  useEffect(() => {
-    setSelectedOrderId((current) => selectVisibleOrderId(visibleOrders, current));
-  }, [visibleOrders]);
+  const selectVisibleOrder = useCallback((orderId: string) => {
+    setSelection({ orderId, includeHiddenSelected: false });
+  }, []);
+  const selectAnyOrder = useCallback((orderId: string) => {
+    setSelection({ orderId, includeHiddenSelected: true });
+  }, []);
 
   return {
+    selectAnyOrder,
+    selectedOrderId: selectedOrder?.id,
     selectedOrder,
-    selectedOrderId,
-    setSelectedOrderId
+    selectVisibleOrder
   };
 }

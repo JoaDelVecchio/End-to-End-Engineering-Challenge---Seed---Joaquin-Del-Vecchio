@@ -5,7 +5,6 @@
     "moduleResolution": "Node",
     "isolatedModules": false,
     "types": [
-      "node",
       "jest"
     ]
   }

@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 
 import type { Order } from "../domain/types";
-import { selectPreferredOrder, selectVisibleOrderId } from "./selection";
+import { selectPreferredOrder } from "./selection";
 
 function order(id: string, date: string): Order {
   return {
@@ -22,24 +22,22 @@ const orders = [
 
 describe("order selection helpers", () => {
   it("keeps the selected order when it is still visible", () => {
-    expect(selectVisibleOrderId(orders, "ord-2")).toBe("ord-2");
     expect(selectPreferredOrder(orders, orders, "ord-2")?.id).toBe("ord-2");
   });
 
-  it("falls back to the first visible order when filters hide the current table selection", () => {
+  it("falls back to the first visible order when filters hide a table selection", () => {
     const visibleOrders = [orders[0]];
 
-    expect(selectVisibleOrderId(visibleOrders, "ord-2")).toBe("ord-1");
+    expect(selectPreferredOrder(orders, visibleOrders, "ord-2")?.id).toBe("ord-1");
   });
 
   it("can select a loaded order from the priority queue even when filters hide it", () => {
     const visibleOrders = [orders[0]];
 
-    expect(selectPreferredOrder(orders, visibleOrders, "ord-2")?.id).toBe("ord-2");
+    expect(selectPreferredOrder(orders, visibleOrders, "ord-2", { includeHiddenSelected: true })?.id).toBe("ord-2");
   });
 
   it("falls back to the first loaded order when no order is visible", () => {
     expect(selectPreferredOrder(orders, [], "ord-3")?.id).toBe("ord-1");
-    expect(selectVisibleOrderId([], "ord-3")).toBeUndefined();
   });
 });

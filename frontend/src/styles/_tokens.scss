@@ -1,0 +1,51 @@
+$color-tokens: (
+  "ml-yellow": #ffe600,
+  "ml-yellow-strong": #ffdb15,
+  "ml-blue": #3483fa,
+  "ml-blue-hover": #2968c8,
+  "ml-green": #00a650,
+  "ml-green-soft": #e7f5ec,
+  "ml-red": #f23d4f,
+  "ml-red-soft": #fdecee,
+  "ml-amber": #f5a623,
+  "ml-amber-soft": #fff4e0,
+  "ml-blue-soft": #e3edfd,
+  "ink": rgb(0 0 0 / 90%),
+  "ink-2": rgb(0 0 0 / 55%),
+  "ink-3": rgb(0 0 0 / 38%),
+  "line": rgb(0 0 0 / 8%),
+  "line-strong": rgb(0 0 0 / 12%),
+  "page-bg": #ededed,
+  "card": #ffffff
+);
+
+$shape-tokens: (
+  "radius-card": 12px,
+  "radius-control": 8px
+);
+
+$effect-tokens: (
+  "shadow-card": (0 2px 8px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 6%)),
+  "shadow-soft": 0 1px 2px rgb(0 0 0 / 10%)
+);
+
+:root {
+  @each $name, $value in $color-tokens {
+    --#{$name}: #{$value};
+  }
+
+  @each $name, $value in $shape-tokens {
+    --#{$name}: #{$value};
+  }
+
+  @each $name, $value in $effect-tokens {
+    --#{$name}: #{$value};
+  }
+
+  font-family: Mulish, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--page-bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}

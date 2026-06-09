@@ -2,7 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { transitionOrderStatus } from "../domain/orderStatus";
-import { getOrderTotal, sortQuestionsByImportance } from "../domain/questionPriority";
+import { getOrderTotal, sortQuestionsByImportance } from "../domain/priority/classifyQuestion";
+import { StoreError } from "../errors/StoreError";
 import {
   Order,
   OrderStatus,
@@ -12,15 +13,9 @@ import {
   StoreData
 } from "../domain/types";
 import { createSeedData } from "./seedData";
+import type { AddQuestionInput, AddReplyInput, OrderFilters, SellerDashboardStore } from "./storePort";
 
-export interface OrderFilters {
-  status?: OrderStatus;
-  buyer?: string;
-  from?: string;
-  to?: string;
-}
-
-export class InMemoryStore {
+export class InMemoryStore implements SellerDashboardStore {
   protected data: StoreData;
 
   constructor(data: StoreData) {
@@ -79,16 +74,11 @@ export class InMemoryStore {
     return clone(sortQuestionsByImportance(pairs, now));
   }
 
-  addQuestion(input: {
-    orderId: string;
-    body: string;
-    productId?: string;
-    createdAt: Date;
-  }): { order: Order; question: Question } {
+  addQuestion(input: AddQuestionInput): { order: Order; question: Question } {
     const order = this.requireOrder(input.orderId);
 
     if (input.productId && !order.items.some((item) => item.productId === input.productId)) {
-      throw new StoreError(400, "Product is not part of this order");
+      throw new StoreError(400, "PRODUCT_NOT_IN_ORDER", "Product is not part of this order");
     }
 
     const question: Question = {
@@ -108,11 +98,11 @@ export class InMemoryStore {
     return { order: clone(order), question: clone(question) };
   }
 
-  addReply(input: { questionId: string; body: string; createdAt: Date }): { order: Order; question: Question } {
+  addReply(input: AddReplyInput): { order: Order; question: Question } {
     const { order, question } = this.requireQuestion(input.questionId);
 
     if (question.status === "resolved") {
-      throw new StoreError(409, "Cannot reply to a resolved question");
+      throw new StoreError(409, "QUESTION_ALREADY_RESOLVED", "Cannot reply to a resolved question");
     }
 
     question.replies.push({
@@ -139,7 +129,7 @@ export class InMemoryStore {
     const { order, question } = this.requireQuestion(questionId);
 
     if (question.status !== "resolved") {
-      throw new StoreError(409, "Only resolved questions can be reopened");
+      throw new StoreError(409, "QUESTION_NOT_RESOLVED", "Only resolved questions can be reopened");
     }
 
     question.status = "open";
@@ -148,13 +138,14 @@ export class InMemoryStore {
     return { order: clone(order), question: clone(question) };
   }
 
-  transitionOrder(orderId: string, status: OrderStatus): Order {
+  transitionOrder(orderId: string, status: OrderStatus, previousStatus?: OrderStatus): Order {
     const order = this.requireOrder(orderId);
     try {
-      order.status = transitionOrderStatus(order.status, status);
+      order.status = transitionOrderStatus(order.status, status, previousStatus);
     } catch (error) {
       throw new StoreError(
         409,
+        "INVALID_ORDER_TRANSITION",
         error instanceof Error ? error.message : "Invalid order status transition"
       );
     }
@@ -180,7 +171,7 @@ export class InMemoryStore {
     const order = this.findOrder(orderId);
 
     if (!order) {
-      throw new StoreError(404, `Order ${orderId} not found`);
+      throw new StoreError(404, "ORDER_NOT_FOUND", `Order ${orderId} not found`);
     }
 
     return order;
@@ -195,7 +186,7 @@ export class InMemoryStore {
       }
     }
 
-    throw new StoreError(404, `Question ${questionId} not found`);
+    throw new StoreError(404, "QUESTION_NOT_FOUND", `Question ${questionId} not found`);
   }
 }
 
@@ -219,18 +210,15 @@ export class JsonFileStore extends InMemoryStore {
   }
 }
 
-export class StoreError extends Error {
-  constructor(readonly statusCode: number, message: string) {
-    super(message);
-  }
-}
-
 export function writeSeedFile(filePath = defaultStorePath()): StoreData {
   const data = createSeedData();
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
   return data;
 }
+
+export { StoreError };
+export type { OrderFilters, SellerDashboardStore };
 
 export function defaultStorePath(): string {
   return path.resolve(process.cwd(), "data", "store.json");
@@ -250,5 +238,5 @@ function withSeedDefaults(data: StoreData): StoreData {
       "MercadoLíder"
   }));
 
-  return { ...data, sellers };
+  return { sellers, orders: data.orders };
 }

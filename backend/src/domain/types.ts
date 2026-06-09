@@ -1,3 +1,5 @@
+import type { CategoryId } from "./categories";
+
 export type OrderStatus = "new" | "paid" | "packing" | "shipped" | "delivered" | "cancelled";
 
 export type QuestionStatus = "open" | "answered" | "resolved";
@@ -19,19 +21,10 @@ export interface Seller {
   reputation: string;
 }
 
-export interface Product {
-  id: string;
-  sellerId: string;
-  title: string;
-  category: string;
-  price: number;
-  stock: number;
-}
-
 export interface OrderItem {
   productId: string;
   title: string;
-  category: string;
+  category: CategoryId;
   quantity: number;
   unitPrice: number;
 }
@@ -66,7 +59,6 @@ export interface Order {
 
 export interface StoreData {
   sellers: Seller[];
-  products: Product[];
   orders: Order[];
 }
 

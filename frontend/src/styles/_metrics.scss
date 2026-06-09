@@ -1,0 +1,70 @@
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metric {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  min-height: 104px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+}
+
+.metric-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+}
+
+.metric-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.metric > div:last-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.metric strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 1.78rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.metric-yellow .metric-icon,
+.metric-amber .metric-icon {
+  color: #b06f00;
+  background: var(--ml-amber-soft);
+}
+
+.metric-red .metric-icon {
+  color: var(--ml-red);
+  background: var(--ml-red-soft);
+}
+
+.metric-blue .metric-icon {
+  color: var(--ml-blue);
+  background: var(--ml-blue-soft);
+}
+
+.metric-green .metric-icon {
+  color: var(--ml-green);
+  background: var(--ml-green-soft);
+}
+
+.metric-green strong {
+  color: var(--ml-green);
+}

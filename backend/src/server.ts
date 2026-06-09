@@ -1,13 +1,13 @@
 import { createApp } from "./api/app";
 import { readServerConfig } from "./config/env";
 import { JsonFileStore } from "./data/store";
-import { ConsoleEmailNotifier } from "./services/notifications";
+import { CompositeNotifier, ConsoleEmailNotifier } from "./services/notifications";
 
 const config = readServerConfig();
 
 const app = createApp({
   store: JsonFileStore.load(),
-  notifier: new ConsoleEmailNotifier(),
+  notifier: new CompositeNotifier([new ConsoleEmailNotifier()]),
   allowedOrigins: config.allowedOrigins
 });
 

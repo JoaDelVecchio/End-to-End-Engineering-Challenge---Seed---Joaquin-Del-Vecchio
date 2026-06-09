@@ -8,15 +8,27 @@ import { useQuestionActions } from "./useQuestionActions";
 
 export function useSellerDashboard() {
   const [filters, setFilters] = useState<OrderFilters>({ search: "", status: "all" });
-  const { error, isLoading, orders, priorityQuestions, refreshDashboard, seller } = useDashboardData();
+  const {
+    applyUpdatedOrder,
+    error,
+    isLoading,
+    orders,
+    priorityQuestions,
+    refreshDashboard,
+    refreshOperationalData,
+    seller
+  } = useDashboardData();
   const deferredFilters = useDeferredValue(filters);
   const visibleOrders = useMemo(() => filterOrders(orders, deferredFilters), [deferredFilters, orders]);
-  const { selectedOrder, selectedOrderId, setSelectedOrderId } = useOrderSelection(orders, visibleOrders);
+  const { selectAnyOrder, selectedOrder, selectedOrderId, selectVisibleOrder } = useOrderSelection(
+    orders,
+    visibleOrders
+  );
   const summary = useMemo(
     () => calculateDashboardSummary(orders, priorityQuestions),
     [orders, priorityQuestions]
   );
-  const questionActions = useQuestionActions(refreshDashboard);
+  const questionActions = useQuestionActions({ applyUpdatedOrder, refreshDashboard: refreshOperationalData });
 
   return {
     actionError: questionActions.actionError,
@@ -29,12 +41,13 @@ export function useSellerDashboard() {
     isLoading,
     loadDashboard: refreshDashboard,
     priorityQuestions,
-    pendingAction: questionActions.pendingAction,
+    pendingActions: questionActions.pendingActions,
     replyDrafts: questionActions.replyDrafts,
+    selectAnyOrder,
+    selectVisibleOrder,
     selectedOrder,
     selectedOrderId,
     setFilters,
-    setSelectedOrderId,
     seller,
     summary,
     updateReplyDraft: questionActions.updateReplyDraft,

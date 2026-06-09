@@ -6,7 +6,7 @@ import { QuestionThread } from "./QuestionThread/QuestionThread";
 
 export function OrderDetail({
   order,
-  pendingAction,
+  pendingActions,
   replyDrafts,
   onReplyDraftChange,
   onReopen,
@@ -15,7 +15,7 @@ export function OrderDetail({
   onTransition
 }: {
   order?: Order;
-  pendingAction?: string | null;
+  pendingActions: string[];
   replyDrafts: Record<string, string>;
   onReplyDraftChange: (questionId: string, value: string) => void;
   onReopen: (questionId: string) => Promise<void>;
@@ -29,12 +29,12 @@ export function OrderDetail({
 
   return (
     <section className="detail-panel" aria-label="Detalle de la orden seleccionada">
-      <OrderDetailHeader order={order} pendingAction={pendingAction} onTransition={onTransition} />
+      <OrderDetailHeader order={order} pendingActions={pendingActions} onTransition={onTransition} />
       <div className="detail-grid">
         <OrderItems order={order} />
         <QuestionThread
           order={order}
-          pendingAction={pendingAction}
+          pendingActions={pendingActions}
           replyDrafts={replyDrafts}
           onReplyDraftChange={onReplyDraftChange}
           onReopen={onReopen}

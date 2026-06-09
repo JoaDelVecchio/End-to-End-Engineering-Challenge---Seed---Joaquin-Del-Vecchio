@@ -8,20 +8,24 @@
   ],
   "scripts": {
     "install:all": "npm install",
-    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
-    "dev:api": "npm run dev -w backend",
-    "dev:web": "npm run dev -w frontend",
-    "start:api": "npm run start -w backend",
-    "start:web": "npm run preview -w frontend",
-    "seed": "npm run seed -w backend",
-    "test": "npm test -w backend && npm test -w frontend",
+    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "dev:api": "npm --prefix backend run dev",
+    "dev:web": "npm --prefix frontend run dev",
+    "seed": "npm --prefix backend run seed",
+    "lint": "eslint \"backend/src/**/*.ts\" \"frontend/src/**/*.{ts,tsx}\" \"e2e/**/*.ts\" \"api/**/*.ts\" \"vercel/**/*.ts\" \"*.config.{ts,mjs}\" \"backend/*.cjs\" \"frontend/*.cjs\" --max-warnings=0",
+    "test": "npm --prefix backend test && npm --prefix frontend test",
     "test:e2e": "npm run seed && playwright test",
-    "build": "npm run build -w backend && npm run build -w frontend",
-    "start": "concurrently \"npm run start:api\" \"npm run start:web\""
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "start": "npm run dev",
+    "check": "npm run lint && npm test && npm run build"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
-    "concurrently": "latest",
-    "typescript": "latest"
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.60.0",
+    "concurrently": "10.0.3",
+    "eslint": "10.4.1",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.6.0",
+    "typescript-eslint": "8.61.0"
   }
 }

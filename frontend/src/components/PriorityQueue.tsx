@@ -15,7 +15,7 @@ export function PriorityQueue({
       <div className="panel-header">
         <div>
           <h2>Cola de prioridad</h2>
-          <span>Preguntas sin resolver</span>
+          <span>Preguntas pendientes de resolución</span>
         </div>
         <ShieldAlert size={20} aria-hidden="true" />
       </div>
@@ -41,7 +41,7 @@ export function PriorityQueue({
         ))}
         {questions.length === 0 ? (
           <div className="empty-state" role="status">
-            No hay preguntas sin resolver
+            No hay preguntas pendientes de resolución
           </div>
         ) : null}
       </div>

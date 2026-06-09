@@ -20,7 +20,7 @@ function order(overrides: Partial<Order> = {}): Order {
         title: "Smartphone Pro",
         category: "electronics",
         quantity: 2,
-        unitPrice: 420
+        unitPrice: 420000
       }
     ],
     questions: [],
@@ -87,7 +87,7 @@ describe("question priority", () => {
       }),
       order({
         status: "paid",
-        items: [{ productId: "prod-1", title: "Set de embalaje", category: "supplies", quantity: 1, unitPrice: 20 }]
+        items: [{ productId: "prod-1", title: "Set de embalaje", category: "supplies", quantity: 1, unitPrice: 20000 }]
       }),
       now
     );

@@ -18,7 +18,7 @@ export function App() {
           <div>
             <h1>Panel de ventas</h1>
             <p>
-              Órdenes recientes y preguntas pendientes de compradores
+              Órdenes recientes y preguntas pendientes de resolución
               {dashboard.seller ? ` para ${dashboard.seller.name}` : ""}
             </p>
           </div>
@@ -55,15 +55,15 @@ export function App() {
             orders={dashboard.visibleOrders}
             selectedOrderId={dashboard.selectedOrder?.id}
             onFilterChange={dashboard.setFilters}
-            onSelectOrder={dashboard.setSelectedOrderId}
+            onSelectOrder={dashboard.selectVisibleOrder}
           />
 
-          <PriorityQueue questions={dashboard.priorityQuestions} onSelectOrder={dashboard.setSelectedOrderId} />
+          <PriorityQueue questions={dashboard.priorityQuestions} onSelectOrder={dashboard.selectAnyOrder} />
         </section>
 
         <OrderDetail
           order={dashboard.selectedOrder}
-          pendingAction={dashboard.pendingAction}
+          pendingActions={dashboard.pendingActions}
           replyDrafts={dashboard.replyDrafts}
           onReplyDraftChange={dashboard.updateReplyDraft}
           onReopen={dashboard.handleReopen}

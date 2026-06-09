@@ -11,7 +11,7 @@ const baseOrder: Order = {
   status: "shipped",
   date: "2026-06-04T10:00:00.000Z",
   items: [
-    { productId: "prod-1", title: "Laptop Ultra 14", category: "electronics", quantity: 1, unitPrice: 1200 }
+    { productId: "prod-1", title: "Laptop Ultra 14", category: "electronics", quantity: 1, unitPrice: 1200000 }
   ],
   questions: []
 };
@@ -19,12 +19,12 @@ const baseOrder: Order = {
 function renderQuestionThread(
   order: Order,
   replyDrafts: Record<string, string> = {},
-  pendingAction?: string
+  pendingActions: string[] = []
 ) {
   return renderToStaticMarkup(
     <QuestionThread
       order={order}
-      pendingAction={pendingAction}
+      pendingActions={pendingActions}
       replyDrafts={replyDrafts}
       onReplyDraftChange={jest.fn()}
       onReply={jest.fn()}
@@ -111,11 +111,34 @@ describe("QuestionThread", () => {
         ]
       },
       { "q-1": "Revisando ahora" },
-      "reply:q-1"
+      ["reply:q-1"]
     );
 
     expect(html).toContain("disabled");
     expect(html).toContain("Enviando");
     expect(html).toContain("aria-busy=\"true\"");
+  });
+
+  it("does not disable another question when an unrelated question action is pending", () => {
+    const html = renderQuestionThread(
+      {
+        ...baseOrder,
+        questions: [
+          {
+            id: "q-1",
+            orderId: baseOrder.id,
+            buyerId: baseOrder.buyer.id,
+            body: "¿Puedes confirmar el envío?",
+            status: "open",
+            createdAt: "2026-06-04T12:00:00.000Z",
+            replies: []
+          }
+        ]
+      },
+      { "q-1": "Revisando ahora" },
+      ["reply:q-2"]
+    );
+
+    expect(html).not.toContain("Enviando");
   });
 });

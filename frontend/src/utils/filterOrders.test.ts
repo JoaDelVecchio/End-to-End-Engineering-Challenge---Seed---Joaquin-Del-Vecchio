@@ -11,7 +11,7 @@ const orders: Order[] = [
     status: "shipped",
     date: "2026-06-04T10:00:00.000Z",
     items: [
-      { productId: "prod-1", title: "Laptop Ultra", category: "electronics", quantity: 1, unitPrice: 1200 }
+      { productId: "prod-1", title: "Laptop Ultra", category: "electronics", quantity: 1, unitPrice: 1200000 }
     ],
     questions: []
   },
@@ -21,9 +21,7 @@ const orders: Order[] = [
     buyer: { id: "buyer-2", name: "Lucas Gomez", email: "lucas@example.com" },
     status: "paid",
     date: "2026-06-05T13:00:00.000Z",
-    items: [
-      { productId: "prod-2", title: "Running Shoes", category: "sports", quantity: 2, unitPrice: 85 }
-    ],
+    items: [{ productId: "prod-2", title: "Tape pack", category: "supplies", quantity: 2, unitPrice: 85000 }],
     questions: []
   }
 ];
@@ -52,5 +50,16 @@ describe("filterOrders", () => {
     });
 
     expect(result.map((order) => order.id)).toEqual(["ord-2"]);
+  });
+
+  it("ignores invalid date filters instead of hiding valid orders", () => {
+    const result = filterOrders(orders, {
+      search: "",
+      status: "all",
+      from: "not-a-date",
+      to: "also-invalid"
+    });
+
+    expect(result.map((order) => order.id)).toEqual(["ord-1", "ord-2"]);
   });
 });

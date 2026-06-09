@@ -1,0 +1,169 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  align-items: start;
+}
+
+.orders-panel,
+.queue-panel,
+.detail-panel {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+}
+
+.orders-panel {
+  min-height: 498px;
+}
+
+.queue-panel {
+  align-self: start;
+}
+
+.panel-header,
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 22px 0;
+}
+
+.detail-header {
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #fffdf0, #ffffff);
+}
+
+.panel-header h2,
+.detail-header h2 {
+  font-size: 1.19rem;
+  font-weight: 800;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(250px, 1.6fr) minmax(190px, 1fr) minmax(165px, 0.85fr) minmax(165px, 0.85fr);
+  gap: 12px;
+  padding: 18px 22px 18px;
+}
+
+.search-control,
+.select-control,
+.date-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  padding: 0 12px;
+  color: var(--ink-3);
+  background: #ffffff;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.search-control:hover,
+.select-control:hover,
+.date-field:hover {
+  border-color: rgb(0 0 0 / 22%);
+}
+
+.search-control input,
+.select-control select,
+.date-control {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  background: transparent;
+  font-size: 0.9rem;
+}
+
+.filter-field-body {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.filter-label {
+  color: var(--ink-3);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.select-control {
+  position: relative;
+  padding-right: 34px;
+  cursor: pointer;
+}
+
+.select-control:hover {
+  background: #fbfcfe;
+}
+
+.select-control select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  appearance: none;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.select-control select:focus-visible {
+  outline: none;
+}
+
+.select-control select option {
+  color: var(--ink);
+  background: #ffffff;
+  font-weight: 600;
+}
+
+.select-value {
+  overflow: hidden;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.select-caret {
+  position: absolute;
+  right: 12px;
+  color: var(--ink-3);
+  pointer-events: none;
+  transition: transform 0.2s ease, color 0.18s ease;
+}
+
+.select-control:focus-within .select-caret {
+  transform: rotate(180deg);
+  color: var(--ml-blue);
+}
+
+.date-control {
+  min-height: auto;
+  padding: 0;
+}
+
+.reply-form textarea:focus,
+.search-control:focus-within,
+.select-control:focus-within,
+.date-field:focus-within {
+  border-color: var(--ml-blue);
+  box-shadow: 0 0 0 3px rgb(52 131 250 / 16%);
+}
